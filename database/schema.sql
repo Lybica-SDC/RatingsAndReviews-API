@@ -1,6 +1,5 @@
-DROP DATABASE RatingsAndReviews;
-CREATE DATABASE RatingsAndReviews;
-CREATE TABLE "public.reviews" (
+CREATE DATABASE RnR;
+CREATE TABLE "reviews" (
 	"id" serial NOT NULL,
 	"product_id" integer NOT NULL,
 	"rating" integer NOT NULL,
@@ -18,7 +17,7 @@ CREATE TABLE "public.reviews" (
   OIDS=FALSE
 );
 
-CREATE TABLE "public.Photos" (
+CREATE TABLE "photos" (
 	"id" integer NOT NULL,
 	"URL" VARCHAR(255) NOT NULL,
 	"review_id" integer NOT NULL,
@@ -34,7 +33,7 @@ CREATE TABLE "public.Photos" (
 --   OIDS=FALSE
 -- );
 
-CREATE TABLE "public.Meta" (
+CREATE TABLE "meta" (
 	"id" integer NOT NULL,
 	"product_id" integer NOT NULL,
 	"name" VARCHAR(255) NOT NULL,
@@ -47,7 +46,7 @@ CREATE TABLE "public.Meta" (
 
 -- ALTER TABLE "Reviews" ADD CONSTRAINT "Reviews_fk0" FOREIGN KEY ("product_id") REFERENCES "Product"("id");
 
-ALTER TABLE "public.Photos" ADD CONSTRAINT "Photos_fk0" FOREIGN KEY ("review_id") REFERENCES "Reviews"("id");
+ALTER TABLE "photos" ADD CONSTRAINT "photos_fk0" FOREIGN KEY ("review_id") REFERENCES "reviews"("id");
 
 
 
