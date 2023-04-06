@@ -1,16 +1,16 @@
-CREATE DATABASE RnR;
+CREATE DATABASE rnr;
 CREATE TABLE "reviews" (
 	"id" serial NOT NULL,
 	"product_id" integer NOT NULL,
 	"rating" integer NOT NULL,
-	"date" VARCHAR(255) NOT NULL,
-	"summary" VARCHAR(255) NOT NULL,
-	"body" VARCHAR(255) NOT NULL,
+	"date" text NOT NULL,
+	"summary" text NOT NULL,
+	"body" text NOT NULL,
 	"recommend" BOOLEAN NOT NULL,
 	"reported" BOOLEAN NOT NULL,
-	"reviewer_name" VARCHAR(255) NOT NULL,
-	"reviewer_email" VARCHAR(255) NOT NULL,
-	"response" VARCHAR(255) NOT NULL,
+	"reviewer_name" text NOT NULL,
+	"reviewer_email" text NOT NULL,
+	"response" text NOT NULL,
 	"helpfulness" integer NOT NULL,
 	CONSTRAINT "Reviews_pk" PRIMARY KEY ("id")
 ) WITH (
@@ -19,7 +19,7 @@ CREATE TABLE "reviews" (
 
 CREATE TABLE "photos" (
 	"id" integer NOT NULL,
-	"URL" VARCHAR(255) NOT NULL,
+	"URL" text NOT NULL,
 	"review_id" integer NOT NULL,
 	CONSTRAINT "Photos_pk" PRIMARY KEY ("id")
 ) WITH (
@@ -36,7 +36,7 @@ CREATE TABLE "photos" (
 CREATE TABLE "meta" (
 	"id" integer NOT NULL,
 	"product_id" integer NOT NULL,
-	"name" VARCHAR(255) NOT NULL,
+	"name" text NOT NULL,
 	"value" integer NOT NULL,
 	"characteristic_id" integer NOT NULL,
 	CONSTRAINT "Meta_pk" PRIMARY KEY ("id")

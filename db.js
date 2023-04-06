@@ -1,10 +1,8 @@
 const pgp = require('pg-promise')();
 require('dotenv').config();
-const db = pgPromise({
+const db = pgp({
   user: 'namnguyen',
-  host: 'localhost',
-  database: 'Reviews',
-  port: process.env.PORT,
+  database: 'rnr',
 });
 
 module.exports = db;
