@@ -1,12 +1,11 @@
-const express = require("express");
-const router = express.Router();
-const reviewController = require('../controllers');
-
+const reviewsModel = require('../models');
 
 //GET list of reviews
 // /reviews/page/count/sort/product_id
-router.get('/reviews/page/count/sort/product_id', reviewController.rList);
-
+exports.rList = (req, res) => {
+  console.log('made it to controllers');
+  reviewsModel.rList()
+}
 
 
 //GET review meta data
