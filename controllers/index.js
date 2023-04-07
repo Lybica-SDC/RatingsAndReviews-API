@@ -4,8 +4,14 @@ const reviewModel = require('../models/reviewModels.js');
 // /reviews/page/count/sort/product_id
 module.exports = {
   getReviews: (req, res) => {
-    console.log('getReview controllers');
-    reviewModel.getReviews();
+    reviewModel.getReviews(req.params, (err, data) => {
+      if (err) {
+        console.log('err getting reviews: ', err);
+      } else {
+        console.log('list of reviews: ', data);
+        res.send(data);
+      }
+    });
   },
 
   // GET review meta data
