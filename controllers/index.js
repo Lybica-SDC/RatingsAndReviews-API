@@ -1,23 +1,38 @@
-const reviewsModel = require('../models');
+const reviewModel = require('../models/reviewModels.js');
 
-//GET list of reviews
+// GET list of reviews
 // /reviews/page/count/sort/product_id
-exports.rList = (req, res) => {
-  console.log('made it to controllers');
-  reviewsModel.rList()
-}
+module.exports = {
+  getReviews: (req, res) => {
+    console.log('getReview controllers');
+    reviewModel.getReviews();
+  },
 
+  // GET review meta data
+  // /reviews/meta/product_id
+  getMeta: (req, res) => {
+    console.log('getMeta controllers');
+    reviewModel.getMeta();
+  },
 
-//GET review meta data
-// /reviews/meta/product_id
+  // POST a review
+  // /reviews/product_id/rating/summary/body/recommend/name/email/photos/characteristics
+  postReview: (req, res) => {
+    console.log('postReview controllers');
+    reviewModel.postReview();
+  },
 
+  // PUT a review as helpful
+  // /reviews/:review_id/helpful
+  putHelpful: (req, res) => {
+    console.log('putHelpful controllers');
+    reviewModel.putHelpful();
+  },
 
-//POST a review
-// /reviews/product_id/rating/summary/body/recommend/name/email/photos/characteristics
-
-//PUT a review as helpful
-// /reviews/:review_id/helpful
-
-//PUT a review
-// /reviews/:review_id/report
-
+  // PUT a review
+  // /reviews/:review_id/report
+  putReport: (req, res) => {
+    console.log('putReport controllers');
+    reviewModel.putReport();
+  },
+};
