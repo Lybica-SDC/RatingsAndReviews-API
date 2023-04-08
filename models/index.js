@@ -7,13 +7,17 @@ const helpers = require('./helpers');
 module.exports = {
   getReviews: async (req, callback) => {
     const { page, count, product_id } = req;
-    console.log('the prod.id', product_id);
 
-    const queryResults = `SELECT id, rating, summary, recommend, response, body, date, reviewer_name, helpfulness, (SELECT json_agg(json_build_object('id', photos.id, 'url', photos.url)) FROM photos WHERE photos.review_id = reviews.id) AS photos FROM reviews WHERE reviews.product_id = $3 LIMIT $2`;
+    const queryResults = `SELECT id, rating, summary, recommend, response, body, date, reviewer_name, helpfulness, (SELECT json_agg(json_build_object('id', photos.id, 'url', photos.url)) FROM photos WHERE photos.review_id = reviews.id) AS photos FROM reviews WHERE reviews.product_id = $1 LIMIT $2`;
 
     // const photos = await db.many(queryPhotos);
-    const results = await db.many(queryResults, [page, count, product_id]);
-    const review = {
+    let results = await db.many(queryResults, [product_id, count]);
+    results.forEach((res) => {
+      if (res.photos === null) {
+        res.photos = [];
+      }
+    });
+    const review = await {
       product: product_id,
       page,
       count,

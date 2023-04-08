@@ -3,7 +3,7 @@ require('dotenv').config();
 
 const db = pgp({
   user: 'namnguyen',
-  database: 'rnr',
+  database: process.env.DB_NAME,
 });
 
 module.exports = db;

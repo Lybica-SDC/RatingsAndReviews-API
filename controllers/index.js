@@ -4,11 +4,12 @@ const reviewModel = require('../models');
 // /reviews/page/count/sort/product_id
 module.exports = {
   getReviews: (req, res) => {
-    reviewModel.getReviews(req.params, (err, data) => {
+    console.log('getReviews req: ', req.query);
+    reviewModel.getReviews(req.query, (err, data) => {
       if (err) {
         console.log('err getting reviews: ', err);
       } else {
-        console.log('list of reviews: ', data);
+        console.log(data);
         res.json(data);
       }
     });
@@ -17,6 +18,7 @@ module.exports = {
   // GET review meta data
   // /reviews/meta/product_id
   getMeta: (req, res) => {
+    console.log('my meta params', req.params);
     reviewModel.getMeta(req.params, (err, data) => {
       if (err) {
         console.log('err getting meta: ', err);
@@ -30,10 +32,10 @@ module.exports = {
   // POST a review
   // /reviews/product_id/rating/summary/body/recommend/name/email/photos/characteristics
   postReview: (req, res) => {
-    console.log('post body: ', req.body);
+    console.log('post body: ', req.query);
     reviewModel.postReview(req.query, (err) => {
       if (err) {
-        console.log('err posting to db');
+        console.log('err posting review', err);
       } else {
         res.sendStatus(201);
       }

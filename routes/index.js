@@ -5,7 +5,7 @@ const controllers = require('../controllers');
 
 // GET list of reviews
 // /reviews/page/count/sort/product_id
-router.get('/:page/:count/:sort/:product_id', controllers.getReviews);
+router.get('/', controllers.getReviews);
 
 // GET review meta data
 // /reviews/meta/product_id
