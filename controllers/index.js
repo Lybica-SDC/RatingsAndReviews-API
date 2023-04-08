@@ -18,8 +18,8 @@ module.exports = {
   // GET review meta data
   // /reviews/meta/product_id
   getMeta: (req, res) => {
-    console.log('my meta params', req.params);
-    reviewModel.getMeta(req.params, (err, data) => {
+    console.log('my meta params', req.query.product_id);
+    reviewModel.getMeta(req.query.product_id, (err, data) => {
       if (err) {
         console.log('err getting meta: ', err);
       } else {

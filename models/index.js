@@ -6,7 +6,13 @@ const helpers = require('./helpers');
 // /reviews/page/count/sort/product_id
 module.exports = {
   getReviews: async (req, callback) => {
-    const { page, count, product_id } = req;
+    let { page, count, product_id } = req;
+    if (count === 'NaN') {
+      count = 5;
+    }
+    if (page === undefined) {
+      page = 1;
+    }
 
     const queryResults = `SELECT id, rating, summary, recommend, response, body, date, reviewer_name, helpfulness, (SELECT json_agg(json_build_object('id', photos.id, 'url', photos.url)) FROM photos WHERE photos.review_id = reviews.id) AS photos FROM reviews WHERE reviews.product_id = $1 LIMIT $2`;
 
@@ -28,8 +34,8 @@ module.exports = {
 
   // GET review meta data
   // /reviews/meta/product_id
-  getMeta: async (req, callback) => {
-    const { product_id } = req;
+  getMeta: async (product_id, callback) => {
+    console.log('req in meta', product_id);
     const metaData = {
       product_id,
     };
