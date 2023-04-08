@@ -1,4 +1,4 @@
-const reviewModel = require('../models/reviewModels.js');
+const reviewModel = require('../models');
 
 // GET list of reviews
 // /reviews/page/count/sort/product_id
@@ -9,7 +9,7 @@ module.exports = {
         console.log('err getting reviews: ', err);
       } else {
         console.log('list of reviews: ', data);
-        res.send(data);
+        res.json(data);
       }
     });
   },
@@ -17,28 +17,52 @@ module.exports = {
   // GET review meta data
   // /reviews/meta/product_id
   getMeta: (req, res) => {
-    console.log('getMeta controllers');
-    reviewModel.getMeta();
+    reviewModel.getMeta(req.params, (err, data) => {
+      if (err) {
+        console.log('err getting meta: ', err);
+      } else {
+        console.log('meta data: ', data);
+        res.json(data);
+      }
+    });
   },
 
   // POST a review
   // /reviews/product_id/rating/summary/body/recommend/name/email/photos/characteristics
   postReview: (req, res) => {
-    console.log('postReview controllers');
-    reviewModel.postReview();
+    console.log('post body: ', req.body);
+    reviewModel.postReview(req.body, (err) => {
+      if (err) {
+        console.log('err posting to db');
+      } else {
+        res.sendStatus(201);
+      }
+    });
   },
 
   // PUT a review as helpful
   // /reviews/:review_id/helpful
   putHelpful: (req, res) => {
     console.log('putHelpful controllers');
-    reviewModel.putHelpful();
+    reviewModel.putHelpful(req, (err) => {
+      if (err) {
+        console.log('err updating helpful: ', err);
+      } else {
+        res.sendStatus(204);
+      }
+    });
   },
 
   // PUT a review
   // /reviews/:review_id/report
   putReport: (req, res) => {
     console.log('putReport controllers');
-    reviewModel.putReport();
+    reviewModel.putReport(req, (err) => {
+      if (err) {
+        console.log('err updating helpful: ', err);
+      } else {
+        res.sendStatus(204);
+      }
+    });
   },
 };

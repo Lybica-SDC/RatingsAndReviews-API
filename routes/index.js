@@ -9,7 +9,7 @@ router.get('/:page/:count/:sort/:product_id', controllers.getReviews);
 
 // GET review meta data
 // /reviews/meta/product_id
-router.get('/meta', controllers.getMeta);
+router.get('/meta/:product_id', controllers.getMeta);
 
 // POST a review
 // /reviews/product_id/rating/summary/body/recommend/name/email/photos/characteristics

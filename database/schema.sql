@@ -1,6 +1,6 @@
 CREATE DATABASE rnr;
 CREATE TABLE "reviews" (
-	"id" serial NOT NULL,
+	"review_id" serial NOT NULL,
 	"product_id" integer NOT NULL,
 	"rating" integer NOT NULL,
 	"date" VARCHAR(255) NOT NULL,
