@@ -31,7 +31,7 @@ module.exports = {
   // /reviews/product_id/rating/summary/body/recommend/name/email/photos/characteristics
   postReview: (req, res) => {
     console.log('post body: ', req.body);
-    reviewModel.postReview(req.body, (err) => {
+    reviewModel.postReview(req.query, (err) => {
       if (err) {
         console.log('err posting to db');
       } else {
@@ -44,7 +44,7 @@ module.exports = {
   // /reviews/:review_id/helpful
   putHelpful: (req, res) => {
     console.log('putHelpful controllers');
-    reviewModel.putHelpful(req, (err) => {
+    reviewModel.putHelpful(req.params, (err) => {
       if (err) {
         console.log('err updating helpful: ', err);
       } else {

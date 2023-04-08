@@ -1,5 +1,5 @@
 const path = require('path');
-const db = require('./db.js');
+const db = require('./index');
 
 const transferIntoReviews = async () => {
   const filePath = path.resolve(__dirname, './data/reviews.csv');
@@ -56,7 +56,7 @@ const transferCharacteristics = async () => {
   }
 };
 
-transferIntoReviews();
-transferCharacteristics();
-transferIntoPhotos();
+// transferIntoReviews();
+// transferCharacteristics();
+// transferIntoPhotos();
 transferCharacteristicReviews();

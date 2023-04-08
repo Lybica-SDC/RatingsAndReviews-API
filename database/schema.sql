@@ -1,16 +1,16 @@
 CREATE DATABASE rnr;
 CREATE TABLE "reviews" (
-	"review_id" serial NOT NULL,
+	"id" serial NOT NULL,
 	"product_id" integer NOT NULL,
 	"rating" integer NOT NULL,
 	"date" VARCHAR(255) NOT NULL,
 	"summary" text NOT NULL,
 	"body" text NOT NULL,
 	"recommend" BOOLEAN NOT NULL,
-	"reported" BOOLEAN NOT NULL,
+	"reported" BOOLEAN DEFAULT FALSE,
 	"reviewer_name" VARCHAR(255) NOT NULL,
-	"response" VARCHAR(255) NOT NULL,
-	"helpfulness" integer NOT NULL,
+	"response" text,
+	"helpfulness" integer DEFAULT 0,
 	"reviewer_email" VARCHAR(255) NOT NULL,
 	CONSTRAINT "reviews_pk" PRIMARY KEY ("id")
 ) WITH (
