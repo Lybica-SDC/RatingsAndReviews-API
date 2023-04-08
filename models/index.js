@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable quotes */
 const db = require('../database');
+const helpers = require('./helpers');
 // GET list of reviews
 // /reviews/page/count/sort/product_id
 module.exports = {
@@ -8,10 +9,10 @@ module.exports = {
     const { page, count, product_id } = req;
     console.log('the prod.id', product_id);
 
-    const queryResults = `SELECT review_id, rating, summary, recommend, response, body, date, reviewer_name, (SELECT json_agg(json_build_object('id', photos.id, 'url', photos.url)) FROM photos WHERE photos.review_id = reviews.review_id) AS photos FROM reviews LIMIT ${count}`;
+    const queryResults = `SELECT review_id, rating, summary, recommend, response, body, date, reviewer_name, (SELECT json_agg(json_build_object('id', photos.id, 'url', photos.url)) FROM photos WHERE photos.review_id = reviews.review_id) AS photos FROM reviews WHERE reviews.product_id = $3 LIMIT $2`;
 
     // const photos = await db.many(queryPhotos);
-    const results = await db.many(queryResults);
+    const results = await db.many(queryResults, [page, count, product_id]);
     const review = {
       product: product_id,
       page,
@@ -23,17 +24,25 @@ module.exports = {
 
   // GET review meta data
   // /reviews/meta/product_id
-  getMeta: (req, callback) => {
-    console.log('getMeta models');
-    const queryString = 'SELECT body FROM reviews WHERE id < 10';
-    db.many(queryString)
-      .then((result) => {
-        callback(null, result);
-      })
-      .catch((err) => {
-        console.log('err getting meta', err);
-        callback(err);
-      });
+  getMeta: async (req, callback) => {
+    const { product_id } = req;
+    const metaData = {
+      product_id,
+    };
+
+    const ratings = await db.many('SELECT rating FROM reviews WHERE product_id = $1', [product_id]);
+    const results = helpers.calculateRatings(ratings);
+    metaData.ratings = results;
+
+    const rec = await db.many('SELECT recommend FROM reviews WHERE product_id = $1', [product_id]);
+    const recCount = helpers.totalRec(rec);
+    metaData.recommended = recCount;
+
+    const chars = await db.many('SELECT char_reviews.characteristic_id, characteristics.name, char_reviews.review_id, char_reviews.value FROM characteristics JOIN char_reviews ON char_reviews.characteristic_id = characteristics.id WHERE characteristics.product_id = $1', [product_id]);
+    const charTotals = helpers.calculateChars(chars);
+    metaData.characteristics = charTotals;
+
+    callback(null, metaData);
   },
 
   // POST a review
