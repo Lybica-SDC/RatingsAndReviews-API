@@ -20,7 +20,7 @@ CREATE TABLE "reviews" (
 
 
 CREATE TABLE "photos" (
-	"id" integer NOT NULL,
+	"id" serial NOT NULL,
 	"url" text NOT NULL,
 	"review_id" integer NOT NULL,
 	CONSTRAINT "photos_pk" PRIMARY KEY ("id")

@@ -32,7 +32,7 @@ const transferCharacteristicReviews = async () => {
   // create a path to characteristic reviews
   const charReviewPath = path.resolve(__dirname, './data/characteristic_reviews.csv');
   console.log('file name: ', charReviewPath);
-  const queryString = `COPY char_reviews(id,characteristic_id,review_id,value) FROM '${charReviewPath}' DELIMITER ',' CSV HEADER;`;
+  const queryString = `COPY char_reviews(id,characteristic_id,review_id,value) FROM '${charReviewPath}' DELIMITER ',' CSV HEADER ALTER SEQUENCE photos_id_seq RETSART WITH (SELECT MAX(id) FROM photos);`;
 
   try {
     await db.none(queryString);
@@ -58,5 +58,5 @@ const transferCharacteristics = async () => {
 
 // transferIntoReviews();
 // transferCharacteristics();
-// transferIntoPhotos();
-transferCharacteristicReviews();
+transferIntoPhotos();
+// transferCharacteristicReviews();
