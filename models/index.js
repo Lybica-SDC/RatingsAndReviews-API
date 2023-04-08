@@ -94,7 +94,15 @@ module.exports = {
 
   // PUT a review
   // /reviews/:review_id/report
-  putReport: (req, callback) => {
-    console.log('putReport models');
+  putReport: (review_id, callback) => {
+    db.none('UPDATE reviews SET reported = TRUE WHERE id = $1', [review_id])
+      .then(() => {
+        console.log('report successful');
+        callback(null);
+      })
+      .catch((err) => {
+        console.log('could not update reported');
+        callback(err);
+      });
   },
 };

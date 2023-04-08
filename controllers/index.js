@@ -56,8 +56,8 @@ module.exports = {
   // PUT a review
   // /reviews/:review_id/report
   putReport: (req, res) => {
-    console.log('putReport controllers');
-    reviewModel.putReport(req, (err) => {
+    // console.log('putReport controllers', req.params);
+    reviewModel.putReport(req.params.review_id, (err) => {
       if (err) {
         console.log('err updating helpful: ', err);
       } else {
