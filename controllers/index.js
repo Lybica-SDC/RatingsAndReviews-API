@@ -30,14 +30,14 @@ module.exports = {
   // POST a review
   // /reviews/product_id/rating/summary/body/recommend/name/email/photos/characteristics
   postReview: (req, res) => {
-    console.log('post query: ', req.body);
+    // console.log('post query: ', req.body);
     // console.log('post param', req.param);
     // console.log('post body', req.body);
     reviewModel.postReview(req.body, (err) => {
       if (err) {
         console.log('err posting review', err);
       } else {
-        console.log('callback successful');
+        console.log('post successful');
         res.sendStatus(201);
       }
     });
@@ -47,7 +47,7 @@ module.exports = {
   // /reviews/:review_id/helpful
   putHelpful: (req, res) => {
     console.log('putHelpful controllers');
-    reviewModel.putHelpful(req.params, (err) => {
+    reviewModel.putHelpful(req.params.review_id, (err) => {
       if (err) {
         console.log('err updating helpful: ', err);
       } else {

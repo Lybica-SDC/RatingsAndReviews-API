@@ -114,12 +114,12 @@ module.exports = {
   putHelpful: async (data, callback) => {
     console.log('putHelpful models', data);
     const { review_id } = data;
-    const query = await db.one('SELECT helpfulness FROM reviews WHERE id = $1', [review_id])
+    const helpfulCount = await db.one('SELECT helpfulness FROM reviews WHERE id = $1', [review_id])
       .catch((err) => {
         console.log('here', err);
       });
 
-    const newVal = query.helpfulness + 1;
+    const newVal = helpfulCount.helpfulness + 1;
 
     db.none('UPDATE reviews SET helpfulness = $1 WHERE id = $2', [newVal, review_id])
       .then(() => {
