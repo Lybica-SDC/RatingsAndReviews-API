@@ -18,6 +18,11 @@ module.exports = {
 
     // const photos = await db.many(queryPhotos);
     const results = await db.many(queryResults, [product_id, count]);
+    results.forEach((result) => {
+      const date = new Date(result.date * 100);
+      const formatted = date.toISOString();
+      result.date = formatted;
+    });
     results.forEach((res) => {
       if (res.photos === null) {
         res.photos = [];
@@ -111,9 +116,8 @@ module.exports = {
 
   // PUT a review as helpful
   // /reviews/:review_id/helpful
-  putHelpful: async (data, callback) => {
-    console.log('putHelpful models', data);
-    const { review_id } = data;
+  putHelpful: async (review_id, callback) => {
+    console.log('putHelpful models', review_id);
     const helpfulCount = await db.one('SELECT helpfulness FROM reviews WHERE id = $1', [review_id])
       .catch((err) => {
         console.log('here', err);

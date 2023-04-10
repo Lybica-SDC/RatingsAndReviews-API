@@ -46,7 +46,7 @@ module.exports = {
   // PUT a review as helpful
   // /reviews/:review_id/helpful
   putHelpful: (req, res) => {
-    console.log('putHelpful controllers');
+    console.log('putHelpful controllers', req);
     reviewModel.putHelpful(req.params.review_id, (err) => {
       if (err) {
         console.log('err updating helpful: ', err);

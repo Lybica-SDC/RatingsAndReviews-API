@@ -17,17 +17,17 @@ module.exports = {
 
   totalRec: (array) => {
     const recCount = {
-      0: 0,
-      1: 0,
+      false: 0,
+      true: 0,
     };
 
     array.forEach((obj) => {
       if (obj.recommend === false) {
-        recCount[0] += 1;
+        recCount.false += 1;
       }
 
       if (obj.recommend === true) {
-        recCount[1] += 1;
+        recCount.true += 1;
       }
     });
 
