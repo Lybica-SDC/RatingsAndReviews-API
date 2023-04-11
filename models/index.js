@@ -6,85 +6,81 @@ const helpers = require('./helpers');
 // GET list of reviews
 // /reviews/page/count/sort/product_id
 module.exports = {
-  getReviews: async (req, callback) => {
-    let { page, count, product_id, sort } = req;
+  getReviewsPromise: (req) => (
+    new Promise((resolve, reject) => {
+      let { page, count, product_id, sort } = req;
 
-    if (count === 'NaN') {
-      count = 5;
-    }
-    if (page === undefined) {
-      page = 1;
-    }
+      if (count === 'NaN') {
+        count = 5;
+      }
+      if (page === undefined) {
+        page = 1;
+      }
 
-    const review = {
-      product: product_id,
-      page,
-      count,
-    };
-    // clean up code
-    const sortString = helpers.generateSort(sort);
-    const queryResults = "SELECT id, rating, summary, recommend, response, body, date, reviewer_name, helpfulness, (SELECT json_agg(json_build_object('id', photos.id, 'url', photos.url)) FROM photos WHERE photos.review_id = reviews.id) AS photos FROM reviews WHERE reviews.product_id = $1 AND reviews.reported = false " + sortString + " LIMIT $2";
+      const review = {
+        product: product_id,
+        page,
+        count,
+      };
+      // clean up code
+      const sortString = helpers.generateSort(sort);
+      const queryResults = "SELECT id, rating, summary, recommend, response, body, date, reviewer_name, helpfulness, (SELECT json_agg(json_build_object('id', photos.id, 'url', photos.url)) FROM photos WHERE photos.review_id = reviews.id) AS photos FROM reviews WHERE reviews.product_id = $1 AND reviews.reported = false " + sortString + " LIMIT $2";
 
-    // const photos = await db.many(queryPhotos);
-    db.any(queryResults, [product_id, count])
-      .then((values) => {
-        values.forEach((value) => {
-          if (value.photos === null) {
-            value.photos = [];
-          }
+      // const photos = await db.many(queryPhotos);
+      db.any(queryResults, [product_id, count])
+        .then((values) => {
+          values.forEach((value) => {
+            if (value.photos === null) {
+              value.photos = [];
+            }
 
-          const date = new Date(value.date * 100).toISOString();
-          value.date = date;
+            const date = new Date(value.date * 100).toISOString();
+            value.date = date;
+          });
+
+          review.results = values;
+          return review;
+        })
+        .then((rev) => {
+          resolve(rev);
+        })
+        .catch((err) => {
+          console.log('could not find product_id', product_id);
+          reject(err);
         });
-
-        review.results = values;
-        return review;
-      })
-      .then((rev) => {
-        callback(null, rev);
-      })
-      .catch((err) => {
-        console.log('could not find product_id', product_id);
-        callback(err);
-      });
-  },
-
+    })
+  ),
   // GET review meta data
   // /reviews/meta/product_id
-  getMeta: async (product_id, callback) => {
-    const metaData = {
-      product_id,
-    };
+  getMetaPromise: (product_id) => (
+    new Promise((resolve, reject) => {
+      const metaData = {
+        product_id,
+      };
 
-    db.many('SELECT rating, recommend FROM reviews WHERE product_id = $1', [product_id])
-      .then((data) => {
-        const ratings = helpers.calculateRatings(data);
-        const recCount = helpers.totalRec(data);
-        metaData.ratings = ratings;
-        metaData.recommended = recCount;
-      })
-      .then(() => (
-        db.many('SELECT char_reviews.characteristic_id, characteristics.name, char_reviews.review_id, char_reviews.value FROM characteristics JOIN char_reviews ON char_reviews.characteristic_id = characteristics.id WHERE characteristics.product_id = $1', [product_id])
-      ))
-      .then((data) => {
-        metaData.characteristics = helpers.calculateChars(data);
-        return metaData;
-      })
-      .then(() => {
-        callback(null, metaData);
-      })
-      .catch((err) => {
-        callback(err);
-      });
+      db.many('SELECT rating, recommend FROM reviews WHERE product_id = $1', [product_id])
+        .then((data) => {
+          const ratings = helpers.calculateRatings(data);
+          const recCount = helpers.totalRec(data);
+          metaData.ratings = ratings;
+          metaData.recommended = recCount;
+        })
+        .then(() => (
+          db.many('SELECT char_reviews.characteristic_id, characteristics.name, char_reviews.review_id, char_reviews.value FROM characteristics JOIN char_reviews ON char_reviews.characteristic_id = characteristics.id WHERE characteristics.product_id = $1', [product_id])
+        ))
+        .then((data) => {
+          metaData.characteristics = helpers.calculateChars(data);
+          return metaData;
+        })
+        .then(() => {
+          resolve(metaData);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    })
+  ),
 
-    // const charTotals = helpers.calculateChars(chars);
-    // metaData.characteristics = charTotals;
-
-    // callback(null, metaData);
-  },
-
-  // POST a review
-  // /reviews/product_id/rating/summary/body/recommend/name/email/photos/characteristics
   postReview: async (data, callback) => {
     const {
       product_id, rating, summary, body, date, recommend,
