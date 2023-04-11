@@ -3,26 +3,26 @@ import { check } from 'k6';
 import { randomIntBetween, randomItem } from 'https://jslib.k6.io/k6-utils/1.2.0/index.js';
 
 export const options = {
-  vus: 500,
+  vus: 1000,
   duration: '30s',
   thresholds: {
     http_req_duration: ['p(95)<2000'], // 95% of requests should complete within 500ms
     http_req_failed: ['rate<0.1'], // error rate should be less than 10%
   },
   discardResponseBodies: true,
-//   stages: [
-//     { duration: '30s', target: 50 },
-//     { duration: '30s', target: 75 },
-//     { duration: '30s', target: 100 },
-//     { duration: '2m', target: 70 },
-//     { duration: '30s', target: 50 },
-//     { duration: '30s', target: 30 },
-//   ],
+  // stages: [
+  //   { duration: '30s', target: 10 },
+  //   { duration: '30s', target: 100 },
+  //   { duration: '30s', target: 500 },
+  //   { duration: '2m', target: 1000 },
+  //   { duration: '30s', target: 350 },
+  //   { duration: '30s', target: 100 },
+  // ],
 };
 
 export default function() {
-  const prodID = randomIntBetween(999600, 1000000);
-  const sortType = randomItem(['newest', 'helpful', 'relevant']);
+  const prodID = randomIntBetween(999400, 1000000);
+  const sortType = randomItem(['newest']);
   const req1 = {
     method: 'GET',
     url: `http://127.0.0.1:3000/reviews?product_id=${prodID}&count=5&sort=${sortType}`,

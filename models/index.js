@@ -8,7 +8,9 @@ const helpers = require('./helpers');
 module.exports = {
   getReviewsPromise: (req) => (
     new Promise((resolve, reject) => {
-      let { page, count, product_id, sort } = req;
+      let {
+        page, count, product_id, sort,
+      } = req;
 
       if (count === 'NaN') {
         count = 5;
@@ -33,16 +35,11 @@ module.exports = {
             if (value.photos === null) {
               value.photos = [];
             }
-
-            const date = new Date(value.date * 100).toISOString();
-            value.date = date;
+            value.date = new Date(value.date * 100).toISOString();
           });
 
           review.results = values;
-          return review;
-        })
-        .then((rev) => {
-          resolve(rev);
+          resolve(review);
         })
         .catch((err) => {
           console.log('could not find product_id', product_id);
@@ -52,7 +49,7 @@ module.exports = {
   ),
   // GET review meta data
   // /reviews/meta/product_id
-  getMetaPromise: (product_id) => (
+  getMetaPromise: async (product_id) => (
     new Promise((resolve, reject) => {
       const metaData = {
         product_id,
@@ -60,17 +57,16 @@ module.exports = {
 
       db.many('SELECT rating, recommend FROM reviews WHERE product_id = $1', [product_id])
         .then((data) => {
-          const ratings = helpers.calculateRatings(data);
-          const recCount = helpers.totalRec(data);
-          metaData.ratings = ratings;
-          metaData.recommended = recCount;
+          metaData.ratings = helpers.calculateRatings(data);
+          metaData.recommended = helpers.totalRec(data);
         })
-        .then(() => (
-          db.many('SELECT char_reviews.characteristic_id, characteristics.name, char_reviews.review_id, char_reviews.value FROM characteristics JOIN char_reviews ON char_reviews.characteristic_id = characteristics.id WHERE characteristics.product_id = $1', [product_id])
-        ))
+        .catch((err) => {
+          reject(err);
+        });
+
+      db.many('SELECT char_reviews.characteristic_id, characteristics.name, char_reviews.review_id, char_reviews.value FROM characteristics JOIN char_reviews ON char_reviews.characteristic_id = characteristics.id WHERE characteristics.product_id = $1', [product_id])
         .then((data) => {
           metaData.characteristics = helpers.calculateChars(data);
-          return metaData;
         })
         .then(() => {
           resolve(metaData);
@@ -81,6 +77,13 @@ module.exports = {
     })
   ),
 
+  // const charTotals = helpers.calculateChars(chars);
+  // metaData.characteristics = charTotals;
+
+  // callback(null, metaData);
+
+  // POST a review
+  // /reviews/product_id/rating/summary/body/recommend/name/email/photos/characteristics
   postReview: async (data, callback) => {
     const {
       product_id, rating, summary, body, date, recommend,

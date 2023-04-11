@@ -1,5 +1,3 @@
-const db = require('../database');
-
 module.exports = {
   calculateRatings: (array) => {
     const ratingCount = {
