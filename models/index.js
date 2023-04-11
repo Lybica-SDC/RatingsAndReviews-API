@@ -7,20 +7,10 @@ const helpers = require('./helpers');
 // /reviews/page/count/sort/product_id
 module.exports = {
   getReviews: async (req, callback) => {
-    let { page, count, product_id, sort } = req;
+    let {page, count, product_id, sort } = req;
 
-    if (count === 'NaN') {
-      count = 5;
-    }
-    if (page === undefined) {
-      page = 1;
-    }
-
-    const review = {
-      product: product_id,
-      page,
-      count,
-    };
+    const num = count || 5;
+    const pages = page || 1;
 
     const sortString = helpers.generateSort(sort);
     const queryResults = "SELECT id, rating, summary, recommend, response, body, date, reviewer_name, helpfulness, (SELECT json_agg(json_build_object('id', photos.id, 'url', photos.url)) FROM photos WHERE photos.review_id = reviews.id) AS photos FROM reviews WHERE reviews.product_id = $1 AND reviews.reported = false " + sortString + " LIMIT $2";
@@ -32,19 +22,17 @@ module.exports = {
           if (value.photos === null) {
             value.photos = [];
           }
-
-          const date = new Date(value.date * 100).toISOString();
-          value.date = date;
+          value.date = new Date(value.date * 100).toISOString();
         });
-
-        review.results = values;
-        return review;
-      })
-      .then((rev) => {
-        callback(null, rev);
+        const review = {
+          product: product_id,
+          page: pages,
+          count: num,
+          results: values,
+        };
+        callback(null, review);
       })
       .catch((err) => {
-        console.log('could not find product_id', product_id);
         callback(err);
       });
   },
@@ -58,19 +46,14 @@ module.exports = {
 
     db.many('SELECT rating, recommend FROM reviews WHERE product_id = $1', [product_id])
       .then((data) => {
-        const ratings = helpers.calculateRatings(data);
-        const recCount = helpers.totalRec(data);
-        metaData.ratings = ratings;
-        metaData.recommended = recCount;
+        metaData.ratings = helpers.calculateRatings(data);
+        metaData.recommended = helpers.totalRec(data);
       })
       .then(() => (
         db.many('SELECT char_reviews.characteristic_id, characteristics.name, char_reviews.review_id, char_reviews.value FROM characteristics JOIN char_reviews ON char_reviews.characteristic_id = characteristics.id WHERE characteristics.product_id = $1', [product_id])
       ))
       .then((data) => {
         metaData.characteristics = helpers.calculateChars(data);
-        return metaData;
-      })
-      .then(() => {
         callback(null, metaData);
       })
       .catch((err) => {
@@ -91,8 +74,6 @@ module.exports = {
       name, email, photos, characteristics, reported, response, helpfulness,
     } = data;
 
-    console.log(data);
-
     let reviewID = 0;
     const queryString = 'INSERT INTO reviews (product_id, rating, date, summary, body, recommend, reviewer_name, reviewer_email, reported, response, helpfulness) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id';
     await db.one(
@@ -112,7 +93,7 @@ module.exports = {
     await photos.forEach(async (url) => {
       db.one('INSERT INTO photos (url, review_id) VALUES ($1, $2) RETURNING id', [url, reviewID])
         .catch((err) => {
-          console.log('err adding photos', err);
+          callback(err);
         });
     });
 
@@ -124,7 +105,7 @@ module.exports = {
     await keys.forEach((trait, index) => {
       db.none(insertChar_reviews, [reviewID, keys[index], values[index]])
         .catch((err) => {
-          console.log(`could not add ${trait} to the char_reviews`, err);
+          callback(err);
         });
     });
 
@@ -133,7 +114,7 @@ module.exports = {
     await keys.forEach((key, index) => {
       db.none(insertCharacteristics, [product_id, names[index]])
         .catch((err) => {
-          console.log(`could not add ${key} to characteristics`, err);
+          callback(err);
         });
     });
 
@@ -143,21 +124,18 @@ module.exports = {
   // PUT a review as helpful
   // /reviews/:review_id/helpful
   putHelpful: async (review_id, callback) => {
-    console.log('putHelpful models', review_id);
     const helpfulCount = await db.one('SELECT helpfulness FROM reviews WHERE id = $1', [review_id])
       .catch((err) => {
-        console.log('here', err);
+        callback(err);
       });
 
     const newVal = helpfulCount.helpfulness + 1;
 
     db.none('UPDATE reviews SET helpfulness = $1 WHERE id = $2', [newVal, review_id])
       .then(() => {
-        console.log('put successfull');
         callback(null);
       })
       .catch((err) => {
-        console.log('could not put helpful');
         callback(err);
       });
   },
@@ -167,11 +145,9 @@ module.exports = {
   putReport: (review_id, callback) => {
     db.none('UPDATE reviews SET reported = TRUE WHERE id = $1', [review_id])
       .then(() => {
-        console.log('report successful');
         callback(null);
       })
       .catch((err) => {
-        console.log('could not update reported');
         callback(err);
       });
   },
