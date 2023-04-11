@@ -21,7 +21,7 @@ module.exports = {
       page,
       count,
     };
-
+    // clean up code
     const sortString = helpers.generateSort(sort);
     const queryResults = "SELECT id, rating, summary, recommend, response, body, date, reviewer_name, helpfulness, (SELECT json_agg(json_build_object('id', photos.id, 'url', photos.url)) FROM photos WHERE photos.review_id = reviews.id) AS photos FROM reviews WHERE reviews.product_id = $1 AND reviews.reported = false " + sortString + " LIMIT $2";
 
