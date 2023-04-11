@@ -28,8 +28,6 @@ CREATE TABLE "photos" (
   OIDS=FALSE
 );
 
-
-
 CREATE TABLE "char_reviews" (
 	"id" serial NOT NULL,
 	"review_id" integer NOT NULL,

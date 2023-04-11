@@ -6,9 +6,8 @@ module.exports = {
   getReviews: (req, res) => {
     reviewModel.getReviews(req.query, (err, data) => {
       if (err) {
-        console.log('err getting reviews: ', err);
+        res.send('problem getting reviews');
       } else {
-        console.log(data);
         res.json(data);
       }
     });
@@ -19,9 +18,8 @@ module.exports = {
   getMeta: (req, res) => {
     reviewModel.getMeta(req.query.product_id, (err, data) => {
       if (err) {
-        console.log('err getting meta: ', err);
+        res.send('problem getting meta');
       } else {
-        console.log('meta data: ', data);
         res.json(data);
       }
     });
@@ -35,9 +33,8 @@ module.exports = {
     // console.log('post body', req.body);
     reviewModel.postReview(req.body, (err) => {
       if (err) {
-        console.log('err posting review', err);
+        res.send('could not post review');
       } else {
-        console.log('post successful');
         res.sendStatus(201);
       }
     });
@@ -46,10 +43,9 @@ module.exports = {
   // PUT a review as helpful
   // /reviews/:review_id/helpful
   putHelpful: (req, res) => {
-    console.log('putHelpful controllers', req);
     reviewModel.putHelpful(req.params.review_id, (err) => {
       if (err) {
-        console.log('err updating helpful: ', err);
+        res.send('could not mark as helpful');
       } else {
         res.sendStatus(204);
       }
@@ -62,7 +58,7 @@ module.exports = {
     // console.log('putReport controllers', req.params);
     reviewModel.putReport(req.params.review_id, (err) => {
       if (err) {
-        console.log('err updating helpful: ', err);
+        res.send('could not report the review');
       } else {
         res.sendStatus(204);
       }

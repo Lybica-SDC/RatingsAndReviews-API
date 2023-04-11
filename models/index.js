@@ -1,3 +1,4 @@
+/* eslint-disable prefer-template */
 /* eslint-disable camelcase */
 /* eslint-disable quotes */
 const db = require('../database');
@@ -6,7 +7,8 @@ const helpers = require('./helpers');
 // /reviews/page/count/sort/product_id
 module.exports = {
   getReviews: async (req, callback) => {
-    let { page, count, product_id } = req;
+    let { page, count, product_id, sort } = req;
+
     if (count === 'NaN') {
       count = 5;
     }
@@ -14,27 +16,37 @@ module.exports = {
       page = 1;
     }
 
-    const queryResults = `SELECT id, rating, summary, recommend, response, body, date, reviewer_name, helpfulness, (SELECT json_agg(json_build_object('id', photos.id, 'url', photos.url)) FROM photos WHERE photos.review_id = reviews.id) AS photos FROM reviews WHERE reviews.product_id = $1 LIMIT $2`;
-
-    // const photos = await db.many(queryPhotos);
-    const results = await db.many(queryResults, [product_id, count]);
-    results.forEach((result) => {
-      const date = new Date(result.date * 100);
-      const formatted = date.toISOString();
-      result.date = formatted;
-    });
-    results.forEach((res) => {
-      if (res.photos === null) {
-        res.photos = [];
-      }
-    });
-    const review = await {
+    const review = {
       product: product_id,
       page,
       count,
-      results,
     };
-    callback(null, review);
+
+    const sortString = helpers.generateSort(sort);
+    const queryResults = "SELECT id, rating, summary, recommend, response, body, date, reviewer_name, helpfulness, (SELECT json_agg(json_build_object('id', photos.id, 'url', photos.url)) FROM photos WHERE photos.review_id = reviews.id) AS photos FROM reviews WHERE reviews.product_id = $1 AND reviews.reported = false " + sortString + " LIMIT $2";
+
+    // const photos = await db.many(queryPhotos);
+    db.any(queryResults, [product_id, count])
+      .then((values) => {
+        values.forEach((value) => {
+          if (value.photos === null) {
+            value.photos = [];
+          }
+
+          const date = new Date(value.date * 100).toISOString();
+          value.date = date;
+        });
+
+        review.results = values;
+        return review;
+      })
+      .then((rev) => {
+        callback(null, rev);
+      })
+      .catch((err) => {
+        console.log('could not find product_id', product_id);
+        callback(err);
+      });
   },
 
   // GET review meta data
@@ -44,19 +56,31 @@ module.exports = {
       product_id,
     };
 
-    const ratings = await db.many('SELECT rating FROM reviews WHERE product_id = $1', [product_id]);
-    const results = helpers.calculateRatings(ratings);
-    metaData.ratings = results;
+    db.many('SELECT rating, recommend FROM reviews WHERE product_id = $1', [product_id])
+      .then((data) => {
+        const ratings = helpers.calculateRatings(data);
+        const recCount = helpers.totalRec(data);
+        metaData.ratings = ratings;
+        metaData.recommended = recCount;
+      })
+      .then(() => (
+        db.many('SELECT char_reviews.characteristic_id, characteristics.name, char_reviews.review_id, char_reviews.value FROM characteristics JOIN char_reviews ON char_reviews.characteristic_id = characteristics.id WHERE characteristics.product_id = $1', [product_id])
+      ))
+      .then((data) => {
+        metaData.characteristics = helpers.calculateChars(data);
+        return metaData;
+      })
+      .then(() => {
+        callback(null, metaData);
+      })
+      .catch((err) => {
+        callback(err);
+      });
 
-    const rec = await db.many('SELECT recommend FROM reviews WHERE product_id = $1', [product_id]);
-    const recCount = helpers.totalRec(rec);
-    metaData.recommended = recCount;
+    // const charTotals = helpers.calculateChars(chars);
+    // metaData.characteristics = charTotals;
 
-    const chars = await db.many('SELECT char_reviews.characteristic_id, characteristics.name, char_reviews.review_id, char_reviews.value FROM characteristics JOIN char_reviews ON char_reviews.characteristic_id = characteristics.id WHERE characteristics.product_id = $1', [product_id]);
-    const charTotals = helpers.calculateChars(chars);
-    metaData.characteristics = charTotals;
-
-    callback(null, metaData);
+    // callback(null, metaData);
   },
 
   // POST a review
@@ -66,6 +90,8 @@ module.exports = {
       product_id, rating, summary, body, date, recommend,
       name, email, photos, characteristics, reported, response, helpfulness,
     } = data;
+
+    console.log(data);
 
     let reviewID = 0;
     const queryString = 'INSERT INTO reviews (product_id, rating, date, summary, body, recommend, reviewer_name, reviewer_email, reported, response, helpfulness) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id';

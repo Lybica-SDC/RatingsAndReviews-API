@@ -1,3 +1,5 @@
+const db = require('../database');
+
 module.exports = {
   calculateRatings: (array) => {
     const ratingCount = {
@@ -55,4 +57,25 @@ module.exports = {
 
     return char;
   },
+
+  generateSort: (sort) => {
+    let string = '';
+    if (sort === 'newest') {
+      string = 'ORDER BY reviews.date DESC';
+    }
+
+    if (sort === 'helpful') {
+      string = 'ORDER BY reviews.helpfulness != null DESC';
+    }
+
+    if (sort === 'relevant') {
+      string = 'ORDER BY reviews.date DESC, reviews.helpfulness != null DESC';
+    }
+
+    return string;
+  },
+
+  // generateNumber: (newProdID) => {
+
+  // },
 };
