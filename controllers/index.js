@@ -35,7 +35,7 @@ module.exports = {
       if (err) {
         res.send('could not post review');
       } else {
-        res.sendStatus(201);
+        res.end();
       }
     });
   },
@@ -47,7 +47,7 @@ module.exports = {
       if (err) {
         res.send('could not mark as helpful');
       } else {
-        res.sendStatus(204);
+        res.end();
       }
     });
   },
@@ -60,7 +60,7 @@ module.exports = {
       if (err) {
         res.send('could not report the review');
       } else {
-        res.sendStatus(204);
+        res.end();
       }
     });
   },
