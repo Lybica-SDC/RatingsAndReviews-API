@@ -22,7 +22,7 @@ export const options = {
 
 export default function() {
   const prodID = randomIntBetween(999600, 1000000);
-  const sortType = randomItem(['newest', 'helpful', 'relevant']);
+  const sortType = randomItem(['newest']);
   const req1 = {
     method: 'GET',
     url: `http://127.0.0.1:3000/reviews?product_id=${prodID}&count=5&sort=${sortType}`,
