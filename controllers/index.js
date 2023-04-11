@@ -4,11 +4,10 @@ const reviewModel = require('../models');
 // /reviews/page/count/sort/product_id
 module.exports = {
   getReviews: (req, res) => {
-    reviewModel.getReviews(req.params, (err, data) => {
+    reviewModel.getReviews(req.query, (err, data) => {
       if (err) {
-        console.log('err getting reviews: ', err);
+        res.send('problem getting reviews');
       } else {
-        console.log('list of reviews: ', data);
         res.json(data);
       }
     });
@@ -17,11 +16,10 @@ module.exports = {
   // GET review meta data
   // /reviews/meta/product_id
   getMeta: (req, res) => {
-    reviewModel.getMeta(req.params, (err, data) => {
+    reviewModel.getMeta(req.query.product_id, (err, data) => {
       if (err) {
-        console.log('err getting meta: ', err);
+        res.send('problem getting meta');
       } else {
-        console.log('meta data: ', data);
         res.json(data);
       }
     });
@@ -30,10 +28,12 @@ module.exports = {
   // POST a review
   // /reviews/product_id/rating/summary/body/recommend/name/email/photos/characteristics
   postReview: (req, res) => {
-    console.log('post body: ', req.body);
-    reviewModel.postReview(req.query, (err) => {
+    // console.log('post query: ', req.body);
+    // console.log('post param', req.param);
+    // console.log('post body', req.body);
+    reviewModel.postReview(req.body, (err) => {
       if (err) {
-        console.log('err posting to db');
+        res.send('could not post review');
       } else {
         res.sendStatus(201);
       }
@@ -43,10 +43,9 @@ module.exports = {
   // PUT a review as helpful
   // /reviews/:review_id/helpful
   putHelpful: (req, res) => {
-    console.log('putHelpful controllers');
-    reviewModel.putHelpful(req.params, (err) => {
+    reviewModel.putHelpful(req.params.review_id, (err) => {
       if (err) {
-        console.log('err updating helpful: ', err);
+        res.send('could not mark as helpful');
       } else {
         res.sendStatus(204);
       }
@@ -59,7 +58,7 @@ module.exports = {
     // console.log('putReport controllers', req.params);
     reviewModel.putReport(req.params.review_id, (err) => {
       if (err) {
-        console.log('err updating helpful: ', err);
+        res.send('could not report the review');
       } else {
         res.sendStatus(204);
       }

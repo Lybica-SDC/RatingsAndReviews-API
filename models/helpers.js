@@ -1,3 +1,5 @@
+const db = require('../database');
+
 module.exports = {
   calculateRatings: (array) => {
     const ratingCount = {
@@ -17,17 +19,17 @@ module.exports = {
 
   totalRec: (array) => {
     const recCount = {
-      0: 0,
-      1: 0,
+      false: 0,
+      true: 0,
     };
 
     array.forEach((obj) => {
       if (obj.recommend === false) {
-        recCount[0] += 1;
+        recCount.false += 1;
       }
 
       if (obj.recommend === true) {
-        recCount[1] += 1;
+        recCount.true += 1;
       }
     });
 
@@ -55,4 +57,25 @@ module.exports = {
 
     return char;
   },
+
+  generateSort: (sort) => {
+    let string = '';
+    if (sort === 'newest') {
+      string = 'ORDER BY reviews.date DESC';
+    }
+
+    if (sort === 'helpful') {
+      string = 'ORDER BY reviews.helpfulness != null DESC';
+    }
+
+    if (sort === 'relevant') {
+      string = 'ORDER BY reviews.date DESC, reviews.helpfulness != null DESC';
+    }
+
+    return string;
+  },
+
+  // generateNumber: (newProdID) => {
+
+  // },
 };
