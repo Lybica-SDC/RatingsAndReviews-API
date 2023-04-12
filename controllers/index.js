@@ -6,7 +6,7 @@ module.exports = {
   getReviews: (req, res) => {
     reviewModel.getReviews(req.query, (err, data) => {
       if (err) {
-        res.send('problem getting reviews');
+        res.sendStatus(500);
       } else {
         res.json(data);
       }
@@ -18,7 +18,7 @@ module.exports = {
   getMeta: (req, res) => {
     reviewModel.getMeta(req.query.product_id, (err, data) => {
       if (err) {
-        res.send('problem getting meta');
+        res.sendStatus(500);
       } else {
         res.json(data);
       }
@@ -33,7 +33,7 @@ module.exports = {
     // console.log('post body', req.body);
     reviewModel.postReview(req.body, (err) => {
       if (err) {
-        res.send('could not post review');
+        res.sendStatus(500);
       } else {
         res.end();
       }
@@ -45,7 +45,7 @@ module.exports = {
   putHelpful: (req, res) => {
     reviewModel.putHelpful(req.params.review_id, (err) => {
       if (err) {
-        res.send('could not mark as helpful');
+        res.sendStatus(500);
       } else {
         res.end();
       }
@@ -58,7 +58,7 @@ module.exports = {
     // console.log('putReport controllers', req.params);
     reviewModel.putReport(req.params.review_id, (err) => {
       if (err) {
-        res.send('could not report the review');
+        res.sendStatus(500);
       } else {
         res.end();
       }
