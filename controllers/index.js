@@ -6,7 +6,8 @@ module.exports = {
   getReviews: (req, res) => {
     reviewModel.getReviews(req.query, (err, data) => {
       if (err) {
-        res.send('problem getting reviews');
+        console.log(err);
+        res.sendStatus(500);
       } else {
         res.json(data);
       }
